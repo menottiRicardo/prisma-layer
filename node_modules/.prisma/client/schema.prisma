@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id   Int    @id @default(autoincrement())
+  uuid String @unique
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  name      String
+  status    Status   @default(ORDERED)
+  total     Int
+  products  String[]
+  tenantId  String
+  tableId   Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  table     Table    @relation(fields: [tableId], references: [id])
+}
+
+model Table {
+  id          Int     @id @default(autoincrement())
+  lastOrderId String?
+  Order       Order?
+}
+
+enum Status {
+  ORDERED
+  PREPARING
+  PREPARED
+  PREPAID
+  PAID
+  CANCELLED
+}
